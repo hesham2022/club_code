@@ -90,8 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   context: context,
                                   barrierDismissible: true,
                                   builder: (_) => AlertDialog(
-                                        title: Text("Error"),
-                                        content: Text("code is wrong"),
+                                        title: Text("خطأ"),
+                                        content: Text("الكود خطأ"),
                                       ));
                             }
                           },
@@ -112,29 +112,29 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(40.0),
           child: data == null
               ? Center(
-                  child: Text('no data'),
+                  child: Text('لا توجد بيانات '),
                 )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     data!.name.isEmpty
-                        ? Text('not registerd')
-                        : Text('name: ${data!.name}'),
+                        ? Text(' غير مسجل')
+                        : Text('الاسم: ${data!.name}'),
                     SizedBox(
                       height: 30,
                     ),
-                    Text('expire data: ${data!.expired}'),
+                    Text('تاريخ الانتهاء: ${data!.expired}'),
                     SizedBox(
                       height: 30,
                     ),
-                    Text('academy: ${data!.academy}'),
+                    Text('الاكاديميه: ${data!.academy}'),
                     SizedBox(
                       height: 30,
                     ),
                     SizedBox(
                       height: 30,
                     ),
-                    Text('area: ${data!.area}'),
+                    Text('المنطقه: ${data!.area}'),
                     SizedBox(
                       height: 30,
                     ),
