@@ -39,7 +39,7 @@ final _lightBorder = OutlineInputBorder(
 class _MyHomePageState extends State<MyHomePage> {
   String code = '';
   String name = '';
-  Data? data;
+  List<Data?>? data;
   Widget _textField() => TextField(
         onChanged: (v) {
           code = v;
@@ -117,29 +117,42 @@ class _MyHomePageState extends State<MyHomePage> {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    data!.name.isEmpty
-                        ? Text(' غير مسجل')
-                        : Text('الاسم: ${data!.name}'),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Text('تاريخ الانتهاء: ${data!.expired}'),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Text('الاكاديميه: ${data!.academy}'),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Text('المنطقه: ${data!.area}'),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Image.network(
-                      'https://ticket.alqadsiah.com.sa${(data!.image as String).replaceFirst('.', '')}',
+                    for (final e in data!)
+                      Column(children: [
+                        e!.name.isEmpty
+                            ? Text(' غير مسجل')
+                            : Text('الاسم: ${e.name}'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text('تاريخ الانتهاء: ${e.expired}'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text('الاكاديميه: ${e.academy}'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text('المنطقه: ${e.area}'),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Image.network(
+                          'https://ticket.alqadsiah.com.sa${(e.image as String).replaceFirst('.', '')}',
+                        ),
+                        Container(
+                          height: 2,
+                          width: double.infinity,
+                          color: Colors.black,
+                        )
+                      ]),
+                    Container(
+                      height: 2,
+                      width: double.infinity,
+                      color: Colors.black,
                     )
                   ],
                 ),
@@ -183,13 +196,23 @@ Future<String?> getData(String code) async {
   }
 }
 
-Future<Data> x(String code) async {
+Future<List<Data>> x(String code) async {
   final Map<String, dynamic> map = {};
+  final Map<String, dynamic> map2 = {};
   var json = await getData(code);
+  print('*' * 20);
+  final seconde = (json!.replaceAll(r'\', ''))
+      .removeAllHtmlTags('')
+      .replaceAll('\"{"', "\"{")
+      //  .replaceAll('}{', '},{')
+      .replaceAll('{', '')
+      .replaceAll('}', '')
+      .replaceAll('{}', '')
+      .replaceAll('\""', "\"");
   // ('''"{"EXPIRED":"2021\/10\/05","ACADEMY":"<img src=https:\/\/ticket.alqadsiah.com.sa\/data\/images\/img-a91d1888b57840dfe62a9c235f79ed8c.png style=\"max-width:48px;max-height:48px;\" \/><br \/>أكاديميات الجودو و تنس طاولة<br \/> أكاديميات الجودو و التنس طاولة","AREA":"أكاديميات الجودو و تنس طاولة","DAYS":"حسب الاختيار","IMAGE":"<img src=.\/cache\/qrcode_16307965021FA0469B_8B65A4D9.png \/>","NAME":"عيسى علي"}<hr />{"EXPIRED":"2021\/10\/05","ACADEMY":"<img src=https:\/\/ticket.alqadsiah.com.sa\/data\/images\/img-784005fce1a5ad4a134709126ed8a299.png style=\"max-width:48px;max-height:48px;\" \/><br \/>أكاديميات السباحة<br \/> أكاديميات القادسية بالعقربية","AREA":"مسبح نادي القادسية","DAYS":"سبت - اثنين - اربعاء<br \/>\r\nSaturday - Monday - Wednesday","IMAGE":"<img src=.\/cache\/qrcode_163079650212752767_42FE00D8.png \/>","NAME":""}<hr />''')
   //     .removeAllHtmlTags('');
 // final decodedJson = jsonDecode(jsonDecode(json));
-  final first = (json!.replaceAll(r'\', ''))
+  final first = (json.replaceAll(r'\', ''))
       .removeAllHtmlTags('')
       .replaceAll('\"{"', "\"{")
       //  .replaceAll('}{', '},{')
@@ -200,16 +223,28 @@ Future<Data> x(String code) async {
 
   //print(jsonDecode(first));
   // print(jsonDecode(first));
-  first.split(',').forEach((e) {
+  final list = first.split(',');
+
+  for (var i = 0; i < list.length; i++) {
+    final e = list[i];
     final newList = (e.split(':'));
     final fL = newList[0].replaceAll('\"', '');
     final sL = newList[1].replaceAll('\"', '');
     final Map<String, dynamic> newMAP = {fL: sL};
-    map.addAll(newMAP);
+    if (i <= 5) {
+      map.addAll(newMAP);
+    } else {
+      map2.addAll(newMAP);
+    }
+
     //print(jsonDecode('{' + e + '}'));
-  });
+  }
+  print(list);
   print(map);
-  return (Data.fromJson(map));
+  map['NAME'] = (map['NAME'] as String).replaceAll('EXPIRED', '');
+  map2['EXPIRED'] = map['EXPIRED'];
+  final data2 = Data.fromJson(map2);
+  return [Data.fromJson(map), Data.fromJson(map2)];
 
 // final academy = json;
 
@@ -245,7 +280,7 @@ class Data {
     required this.name,
   });
 
-  String expired;
+  String? expired;
   String academy;
   String area;
   String days;
@@ -276,8 +311,34 @@ Future<void> setData(String data) async {
   await instance.setString('data', data);
 }
 
-Future<Data> getFromStorage() async {
+Future<List<Data>> getFromStorage() async {
   final instance = await SharedPreferences.getInstance();
   final s = await instance.getString('data');
-  return Data.fromJson(jsonDecode(s!));
+  return (jsonDecode(s!) as List).map((e) => Data.fromJson(e)).toList();
+}
+
+class Name {
+  void name() {}
+}
+
+class Nam2 extends Name {
+  @override
+  void name() {
+    super.name();
+  }
+}
+ abstract class M{
+  void n();
+}
+abstract class J{
+  void t();
+}
+class R extends M with J{
+  @override
+  void n() {
+  }
+
+  @override
+  void t() {
+  }
 }
