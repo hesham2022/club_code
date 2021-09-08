@@ -317,28 +317,4 @@ Future<List<Data>> getFromStorage() async {
   return (jsonDecode(s!) as List).map((e) => Data.fromJson(e)).toList();
 }
 
-class Name {
-  void name() {}
-}
 
-class Nam2 extends Name {
-  @override
-  void name() {
-    super.name();
-  }
-}
- abstract class M{
-  void n();
-}
-abstract class J{
-  void t();
-}
-class R extends M with J{
-  @override
-  void n() {
-  }
-
-  @override
-  void t() {
-  }
-}
